@@ -7,10 +7,15 @@
   <artifactId>testng</artifactId>
   <packaging>jar</packaging>
   <name>TestNG</name>
-  <version>6.8.8</version>
-  <description>TestNG is a testing framework.</description>
+  <version>6.8.8.p1</version>
+  <description>TestNG is a testing framework. (Knoa fork)</description>
   <url>http://testng.org</url>
-    
+
+  <properties>
+    <deployUrl>http://hudson/nexus/content/repositories/releases</deployUrl>
+    <snapshotDeployUrl>http://hudson/nexus/content/repositories/snapshots</snapshotDeployUrl>
+  </properties>
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -36,6 +41,18 @@
     <artifactId>oss-parent</artifactId>
     <version>3</version>
   </parent>
+
+  <!-- Define the location where artifacts are deployed at Knoa -->
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <url>${deployUrl}</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <url>${snapshotDeployUrl}</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <profiles>
     <profile>
@@ -232,22 +249,6 @@
         <configuration>
           <skipTests>true</skipTests>
         </configuration>
-      </plugin>
-
-      <!-- Signing with gpg -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
     </plugins>
