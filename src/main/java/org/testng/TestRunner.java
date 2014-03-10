@@ -751,27 +751,13 @@ public class TestRunner
           }
         }
       } else {
-        boolean debug = false;
-        List<ITestNGMethod> freeNodes = graph.getFreeNodes();
-        if (debug) {
-          System.out.println("Free nodes:" + freeNodes);
+        // bcalmac: submit the whole graph at once, dependencies first
+        List<ITestNGMethod> orderedNodes = graph.getReadyNodesInDependencyOrder();
+//        System.out.println("Ready nodes in dependency order: " + orderedNodes);
+        for (IWorker<ITestNGMethod> r : createNonParallelWorkers(orderedNodes)) {
+          r.run();
         }
-
-        if (graph.getNodeCount() > 0 && freeNodes.isEmpty()) {
-          throw new TestNGException("No free nodes found in:" + graph);
-        }
-
-        while (! freeNodes.isEmpty()) {
-          List<IWorker<ITestNGMethod>> runnables = createWorkers(freeNodes);
-          for (IWorker<ITestNGMethod> r : runnables) {
-            r.run();
-          }
-          graph.setStatus(freeNodes, Status.FINISHED);
-          freeNodes = graph.getFreeNodes();
-          if (debug) {
-            System.out.println("Free nodes:" + freeNodes);
-          }
-        }
+        graph.setStatus(orderedNodes, Status.FINISHED);
       }
     }
   }
@@ -970,6 +956,25 @@ public class TestRunner
     }
 
     return result;
+  }
+
+  /**
+   * Create a single worker for all methods. The order of methods is preserved.
+   */
+  private List<IWorker<ITestNGMethod>> createNonParallelWorkers(List<ITestNGMethod> methods) {
+    IMethodInstance[] methodInstances = new IMethodInstance[methods.size()];
+    for (int i = 0; i < methods.size(); i++) {
+      methodInstances[i] = new MethodInstance(methods.get(i));
+    }
+
+    return Lists.<IWorker<ITestNGMethod>>newArrayList(new TestMethodWorker(m_invoker,
+        methodInstances,
+        m_xmlTest.getSuite(),
+        m_xmlTest.getAllParameters(),
+        m_allTestMethods,
+        m_groupMethods,
+        m_classMethodMap,
+        this));
   }
 
   //

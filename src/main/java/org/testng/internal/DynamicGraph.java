@@ -5,9 +5,11 @@ import org.testng.collections.Lists;
 import org.testng.collections.Maps;
 import org.testng.internal.annotations.Sets;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +85,27 @@ public class DynamicGraph<T> {
     }
 
     return result;
+  }
+
+  /**
+   * Replacement for getFreeNodes() that returns all methods in m_nodesReady
+   * ordered by dependencies (dependencies first).
+   */
+  public List<T> getReadyNodesInDependencyOrder() {
+    LinkedHashSet<T> result = new LinkedHashSet<T>();
+    for (T m: m_nodesReady)
+      addNodeAndDependenciesToSet(result, m);
+    return new ArrayList<T>(result);
+  }
+
+  private void addNodeAndDependenciesToSet(LinkedHashSet<T> result, T method) {
+    if (result.contains(method))
+      return;
+    if (m_dependedUpon.containsKey(method)) {
+      for (T parentMethod: m_dependedUpon.get(method))
+        addNodeAndDependenciesToSet(result, parentMethod);
+    }
+    result.add(method);
   }
 
   /**

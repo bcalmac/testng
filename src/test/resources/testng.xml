@@ -731,5 +731,12 @@
     </classes>
   </test>
 
+  <test name="InterleavedDependentMethods">
+    <classes>
+      <class name="test.dependent.InterleavedDependentMethodsTest"/>
+      <class name="test.dependent.InterleavedDependentMethodsAnotherTest"/>
+    </classes>
+  </test>
+
 </suite>
 
